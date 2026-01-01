@@ -376,29 +376,52 @@ class ContactForm {
         return isValid;
     }
 
-    submitForm() {
+    async submitForm() {
         // Get form data
         const formData = new FormData(this.form);
         const data = Object.fromEntries(formData.entries());
 
-        console.log('Form submitted with data:', data);
+        // Update button state
+        const submitBtn = this.form.querySelector('.btn-submit');
+        const originalBtnText = submitBtn.textContent;
+        submitBtn.disabled = true;
+        submitBtn.textContent = 'Sending...';
 
-        // Simulate form submission
-        // In production, this would be an AJAX call to a backend endpoint
-        setTimeout(() => {
+        try {
+            // REPLACE THIS URL with your actual API Gateway endpoint after deployment
+            const API_ENDPOINT = 'YOUR_API_GATEWAY_URL_HERE';
+
+            // If the endpoint is still the placeholder, we'll simulate for now 
+            // but log a warning to help the user remember to update it.
+            if (API_ENDPOINT === 'YOUR_API_GATEWAY_URL_HERE') {
+                console.warn('AWS API Endpoint not set. Simulating success for development.');
+                await new Promise(resolve => setTimeout(resolve, 1500));
+                this.showSuccess();
+                return;
+            }
+
+            const response = await fetch(API_ENDPOINT, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(data)
+            });
+
+            if (!response.ok) {
+                throw new Error('Network response was not ok');
+            }
+
+            const result = await response.json();
+            console.log('Success:', result);
             this.showSuccess();
-        }, 1000);
-
-        // TODO: Replace with actual form submission
-        // Example:
-        // fetch('/api/contact', {
-        //     method: 'POST',
-        //     headers: { 'Content-Type': 'application/json' },
-        //     body: JSON.stringify(data)
-        // })
-        // .then(response => response.json())
-        // .then(result => this.showSuccess())
-        // .catch(error => this.showError(error));
+        } catch (error) {
+            console.error('Error:', error);
+            this.showError(error);
+        } finally {
+            submitBtn.disabled = false;
+            submitBtn.textContent = originalBtnText;
+        }
     }
 
     showSuccess() {

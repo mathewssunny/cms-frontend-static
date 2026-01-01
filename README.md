@@ -94,6 +94,52 @@ The website uses Google Fonts (Playfair Display & Source Sans Pro). To change fo
 - Client login portal
 - E-commerce for print sales
 
+## AWS Deployment (Free Tier)
+
+This project is ready to be hosted on AWS using a serverless architecture that fits within the Free Tier.
+
+### 1. Static Hosting (AWS Amplify)
+1. Log in to the [AWS Console](https://console.aws.amazon.com/).
+2. Search for **AWS Amplify**.
+3. Click **Host web app**.
+4. Choose **Deploy without Git provider** (or connect your GitHub repo if you have one).
+5. Drag and drop the following files/folders:
+   - `index.html`
+   - `css/`
+   - `js/`
+   - `assets/`
+   - `photos/` (ensure images are in the correct path)
+6. Amplify will provide a `https://...amplifyapp.com` URL.
+
+### 2. Contact Form Backend (Lambda + SES + API Gateway)
+To make the contact form work, follow these steps:
+
+#### **A. Verify Email in SES**
+1. Search for **SES (Simple Email Service)**.
+2. Go to **Verified Identities** -> **Create Identity**.
+3. Add `stevenagecoolpics@gmail.com` and verify it via the email link AWS sends you.
+
+#### **B. Create Lambda Function**
+1. Search for **Lambda** -> **Create Function**.
+2. Name: `coolpics-contact-form`.
+3. Runtime: **Node.js 18.x** (or later).
+4. Copy the code from `aws-backend/lambda_handler.js` into the Lambda editor.
+5. In **Configuration** -> **Permissions**, click the execution role and add the `AmazonSESFullAccess` policy.
+
+#### **C. Set up API Gateway**
+1. Search for **API Gateway** -> **Create API** -> **HTTP API**.
+2. Click **Add Integration** -> **Lambda**. Select your `coolpics-contact-form` function.
+3. Configure the route: `POST /contact`.
+4. Once created, copy the **Invoke URL**.
+
+#### **D. Update Website Code**
+1. Open `js/script.js`.
+2. Find the constant `API_ENDPOINT` near line 391.
+3. Replace `'YOUR_API_GATEWAY_URL_HERE'` with your API Gateway Invoke URL (e.g., `https://xyz.execute-api.region.amazonaws.com/contact`).
+4. Re-upload `js/script.js` to Amplify.
+
+---
+
 ## Contact Information
 
 Update contact details in:
